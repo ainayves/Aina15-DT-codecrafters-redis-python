@@ -6,8 +6,16 @@ def main():
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     #server_socket.accept() # wait for client
 
-    client, _ = server_socket.accept()  # wait for client
-    client.sendall("+PONG\r\n".encode(encoding="UTF-8"))
+    server_socket.listen()
+    client, _ = server_socket.accept() 
+
+    while True:
+        data = client.recv(1024).decode()
+        if not data:
+            break
+        
+        client.send("+PONG\r\n".encode(encoding="UTF-8"))
+    
 
 
 if __name__ == "__main__":
