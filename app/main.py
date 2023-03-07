@@ -45,12 +45,12 @@ def threaded(c):
     
     while True:
         
-        
         data = c.recv(1024).decode()
+
         if not data:
             break
+
         data_array = data.split("\n")
-        
         
         if (Commands.ECHO.value in data_array or Commands.ECHO.value.lower() in data_array):
             resp = f"+{data_array[-2]}\n"
@@ -72,36 +72,27 @@ def threaded(c):
             
             
             reskey = data_array[-2].replace("\n"," ")
-            
-            if len(data_array) == 6 and reskey in key_value:
 
+            if reskey not in key_value:
+                c.send("+key not found\r\n".encode(encoding=Commands.UTF.value))
                 
-                if type(key_value[reskey]) is tuple:
+            if type(key_value[reskey]) is tuple:
 
 
-                    if counter.get_count() > int(key_value[reskey][1].replace("\r","")):
+                if counter.get_count() > int(key_value[reskey][1].replace("\r","")):
 
-                        c.send(Commands.NILL.value.encode(encoding=Commands.UTF.value))
+                    c.send(Commands.NILL.value.encode(encoding=Commands.UTF.value))
 
-                    else:
-
-                        result = key_value[reskey][0].replace("\r","")
-                        resp = f"+{result}\n"
-                        c.send(resp.encode(encoding=Commands.UTF.value))
-                    
                 else:
-                    
-                    resp = f"+{key_value[reskey]}\n"
+
+                    result = key_value[reskey][0].replace("\r","")
+                    resp = f"+{result}\n"
                     c.send(resp.encode(encoding=Commands.UTF.value))
-            
-            elif len(data_array) == 11 and data_array[-8].replace("\r"," ") in key_value :
-                
-                element = key_value[data_array[-8]][0]
-                resp = f"+{element}\n"
-                c.send(resp.encode(encoding=Commands.UTF.value))
 
             else:
-                c.send("+key not found\r\n".encode(encoding=Commands.UTF.value))
+                
+                resp = f"+{key_value[reskey]}\n"
+                c.send(resp.encode(encoding=Commands.UTF.value))
 
         else:
             c.send(Commands.PONG.value.encode(encoding=Commands.UTF.value))
